@@ -7,9 +7,9 @@ module SkeletonCities
 
 using TrafficNetworks
 
-export beta_skeleton, save_graph, load_graph
+export beta_skeleton, save_graph, load_graph, save_graph_dot
 
 include("dirtySkeleton.jl")
-include("graph_read_write_json.jl")
+include("graph_read_write.jl")
 
 end
