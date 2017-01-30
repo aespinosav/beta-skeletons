@@ -70,7 +70,7 @@ end
 
 function save_graph_dot(g, filename, name="G", scale=1)
 
-    str = "digraph $(name) {\n"
+    str = "digraph $(name) {\nconcentrate=true;\n"
 
     open(filename, "w") do f
         write(f, str)
