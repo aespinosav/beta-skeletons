@@ -46,9 +46,9 @@ end
 """
 Returns a beta-skeleton graph with n points for parameter beta
 """
-function make_beta_skeleton(n, beta)
+function beta_skeleton(n, beta)
 
-    if beta <= 1
+    if beta <= 1        # This should be in short-circuit form to be idiomatic
         in_C = in_C_1
     else
         in_C = in_C_2
@@ -90,5 +90,5 @@ function make_beta_skeleton(n, beta)
 
         end
     end
-    return g
+    return g    #Should just have g, but its easier to read this way...
 end
