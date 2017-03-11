@@ -68,16 +68,24 @@ function load_graph(filename)
     g
 end
 
+"""
+Loads a road network from data files. Requires two files: A json file and a param file
+"""
+function load_road_network(filename_start)
+
+end
+
 function save_graph_dot(g, filename, name="G", scale=1)
 
     str = "digraph $(name) {\nconcentrate=true;\n"
-    str *= """node [shape=circle, label=""];\n\n"""
+    str *= """node [shape=circle, label="", fixedsize=true, width=5, style=filled, fillcolor=black];\n"""
+    str *= """edge [penwidth=5];\n\n"""
 
     open(filename, "w") do f
         write(f, str)
         for i in 1:num_nodes(g)
             x, y = g.nodes[i].pos[1], g.nodes[i].pos[2]
-            X, Y = round(Int, x*1000), round(Int, x*1000) #coords in graphviz are to 1/72 of an inch
+            X, Y = round(Int, x*1000), round(Int, y*1000) #coords in graphviz are to 1/72 of an inch
             write(f, """$i [pos="$(X),$(Y)!"];\n""")
         end
 
