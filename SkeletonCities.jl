@@ -10,6 +10,7 @@ using TrafficNetworks
 export beta_skeleton, save_graph, load_graph, save_graph_dot, load_tntp_to_dataframe
 
 include("dirtySkeleton.jl")
+include("skele_road_net.jl")
 include("graph_read_write.jl")
 #include("tntp_interaction.jl") #Contains functions for loading .tntp files into data frames
 
