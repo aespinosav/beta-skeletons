@@ -1,6 +1,6 @@
 using TrafficNetworks
 
-function skeleton_road_network(n, beta, od, b_mult=0.4)
+function skeleton_road_network(n, beta, od, b_mult=1.4)
     g = beta_skeleton(n, beta)
 
     a_params = Array{Float64,1}()
