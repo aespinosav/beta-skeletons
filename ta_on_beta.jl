@@ -1,5 +1,9 @@
-using TrafficNetworks, SkeletonCities, DataFrames, Convex, SCS
 #This script should be run in the Data directory
+#Runs traffic assignment on graphs from files (specifically β-skeleton nets)
+#I think this script only works if all the dirs have the same number of networks...
+
+using TrafficNetworks, SkeletonCities, DataFrames, Convex, SCS
+
 # Function definitions
 
 """
@@ -18,7 +22,6 @@ function od_pairs(g, N)
         end
 
         push!(od_pair_array, [origin, destination])
-
     end
 
     od_pair_array
@@ -37,21 +40,20 @@ function tot_cost(rn, flows)
     cost = dot(rn.a, f) + dot(f, diagm(rn.b)*f)
 end
 
-########################################################################
-########################################################################
-########################################################################
 # Script start
 # running params
+# once running should be change to script params at runtime...
 
 num_od_pairs = 10
 num_of_graphs = 10
 demand_range = collect(0.1:0.1:10) #Ends one order of magnitude larger than spatial size of city
 
-##################
-
-top_dir = pwd()
+top_dir = "/space/ae13414/Data/beta-skeleton"
+cd(top_dir)
 dirs_with_graphs = readdir()
 
+#Data frame that contains output data (note that we should have the files..)
+#This is pretty much a db schema!!
 data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
                        od=Array{Array{Int64,1},1}(),
                        β=Array{UTF8String,1}(),
@@ -64,6 +66,7 @@ for dir in dirs_with_graphs
     cd(dir)
     println("In $(dir)...")
     # Each dir corresponds to a value of beta
+    # Should follow our naming convetion eg. dirs: 'beta_1.14' files: 'g031_beta_1.23.json'
     β = parse(Float64 ,split(dir, '_')[end])
     beta_str = split(dir, '_')[end]
 
@@ -78,6 +81,7 @@ for dir in dirs_with_graphs
 
     if length(graph_files) < num_of_graphs  #How many networks to process per beta
         num_of_graphs = length(graph_files)
+        println("Not enough network files...  Will only solve for $(num_of_graphs) available\n")
     end
 
     for i in 1:num_of_graphs
@@ -85,26 +89,32 @@ for dir in dirs_with_graphs
         graph_id = split(graph_files[i], '_')[1]
         id = "b"*beta_str*graph_id
         println("Run ID: $(id)")
-
+        
+        #Read in graph and param files
         g = load_graph(graph_files[i])
         params = readdlm(param_files[i])
 
         a_vect = params[:,1]
         b_vect = params[:,2]
-
+        
+        #Generate od pairs
         od_list = od_pairs(g, num_od_pairs)
 
         for j in 1:num_od_pairs
-            println("OD pair: $(od_list[j])")
-            rn = RoadNetwork(g, a_vect, b_vect, od_list[j])
+            od = od_list[j]
+            println("OD pair: $(od)")
 
+            #Make road network
+            rn = RoadNetwork(g, a_vect, b_vect, od)
+            
+            #Solve optimisation routine
             sols_ue = ta_solve(rn, demand_range)
             sols_so = ta_solve(rn, demand_range, regime="SO")
 
+            #Generate data frames for UE and SO equilibria
             data_ue = flows_data_frame(sols_ue, rn, demand_range)
             data_so = flows_data_frame(sols_so, rn, demand_range)
 
-            od = od_list[j]
             println("Appending to DataFrame...")
             for k in 1:length(demand_range)
 
