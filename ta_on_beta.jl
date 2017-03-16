@@ -45,13 +45,18 @@ end
 # running params
 # once running should be change to script params at runtime...
 
+
+#Model parameters
 num_od_pairs = 10
 num_of_graphs = 10
-demand_range = collect(0.1:0.1:10) #Ends one order of magnitude larger than spatial size of city
+demand_range = collect(0.1:0.1:10)
 
+#Script parameters (Where the data is read from and written to...))
 top_dir = "/space/ae13414/Data/beta-skeleton"
 cd(top_dir)
 dirs_with_graphs = readdir()
+
+
 
 #Data frame that contains output data (note that we should have the files..)
 #This is pretty much a db schema!! NOTE: only for SINGLE OD PAIRS
@@ -63,24 +68,26 @@ data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
                        socost=Array{Float64,1}(),
                        poa=Array{Float64,1}())
 
-#global row
-
+#Script run start
 for dir in dirs_with_graphs
-    cd(dir)
-    println("\n\nIn dir:$(dir )...")
+    
     # Each dir corresponds to a value of beta
     # Should follow our naming convetion eg. dirs: 'beta_1.14' files: 'g031_beta_1.23.json'
-    β = parse(Float64 ,split(dir, '_')[end])
-    beta_str = split(dir, '_')[end]
+    cd(dir)
+    println("\n\nIn dir:$(dir )...")
 
+    #Prepping of files/file structure
     files = readdir()
-
     split_files = map(x -> split(x, '.'), files)
     useful_files = files[find(x -> x[1][1] == 'g', split_files)]
     split_files = split_files[find(x -> x[1][1] == 'g', split_files)]
 
     graph_files = useful_files[find(x -> x[end] == "json", split_files)]
     param_files = useful_files[find(x -> x[end] == "txt", split_files)]
+    
+    #Get beta-skeleton parameter: β
+    β = parse(Float64 ,split(dir, '_')[end])
+    beta_str = split(dir, '_')[end]
 
     if length(graph_files) < num_of_graphs  #How many networks to process per beta
         num_of_graphs = length(graph_files)
@@ -105,7 +112,7 @@ for dir in dirs_with_graphs
 
         for j in 1:num_od_pairs
             od = od_list[j]
-            println("OD pair: $(od)")
+            println("\tOD pair: $(od)")
 
             #Make road network
             rn = RoadNetwork(g, a_vect, b_vect, od)
@@ -118,7 +125,7 @@ for dir in dirs_with_graphs
             data_ue = flows_data_frame(sols_ue, demand_range)
             data_so = flows_data_frame(sols_so, demand_range)
 
-            println("Appending to DataFrame...")
+            #println("Appending to DataFrame...")
             for k in 1:length(demand_range)
 
 #               f_ue = data_ue[k, 2:end]
@@ -131,11 +138,12 @@ for dir in dirs_with_graphs
 
                 #rows have the following 'columns':     graphid | od_pair | beta | demand (q) | UE cost | SO cost | PoA
                #println("id\tod\tβ\tq\tCue\tCso\tPoA")
-                println("$id\t$od\t$β\t$k\t$cost_ue\t$cost_so\t$poa")
+               #println("$id\t$od\t$β\t$k\t$cost_ue\t$cost_so\t$poa")
                 row = data([id; od; β; k; cost_ue; cost_so; cost_ue/cost_so])
                 push!(data_frame, row)
             end
         end
+        println("Finished for $id \n")
     end
     println("Moving back to $(top_dir)\n\n")
     cd(top_dir)
