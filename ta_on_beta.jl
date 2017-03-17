@@ -23,7 +23,6 @@ function od_pairs(g, N)
 
         push!(od_pair_array, (origin, destination))
     end
-
     od_pair_array
 end
 
@@ -70,7 +69,6 @@ data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
 
 #Script run start
 for dir in dirs_with_graphs
-    
     # Each dir corresponds to a value of beta
     # Should follow our naming convetion eg. dirs: 'beta_1.14' files: 'g031_beta_1.23.json'
     cd(dir)
@@ -115,11 +113,12 @@ for dir in dirs_with_graphs
             println("\tOD pair: $(od)")
 
             #Make road network
-            rn = RoadNetwork(g, a_vect, b_vect, od)
-            
+            rn = RoadNetwork(g, a_vect, b_vect)
+            #Make OD matrix
+            OD = od_matrix_from_pair(rn.g, od)
             #Solve optimisation routine
-            sols_ue = ta_solve(rn, demand_range)
-            sols_so = ta_solve(rn, demand_range, regime="SO")
+            sols_ue = ta_solve(rn, OD, demand_range)
+            sols_so = ta_solve(rn, OD, demand_range, regime="SO")
 
             #Generate data frames for UE and SO equilibria
             data_ue = flows_data_frame(sols_ue, demand_range)
