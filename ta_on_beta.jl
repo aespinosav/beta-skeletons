@@ -12,7 +12,6 @@ Returns an array of N OD pairs for a given network N (uniformly chosen at random
 function od_pairs(g, N)
 
     od_pair_array = Any[]
-
     for i in 1:N
 
         origin = rand(1:num_nodes(g))
@@ -23,7 +22,7 @@ function od_pairs(g, N)
 
         push!(od_pair_array, (origin, destination))
     end
-    od_pair_array
+   od_pair_array
 end
 
 """
@@ -34,7 +33,8 @@ flows must be a row of a data frame obtained with flows_data_frame (or same stru
 that only contains the flows on the edges.
 """
 function tot_cost(rn, flows)
-    #q_range = flows[:q]
+   
+   #q_range = flows[:q]
     flows = flows[2:end]
     f = [flows[i][] for i in 1:length(flows)]
     cost = dot(rn.a, f) + dot(f, diagm(rn.b)*f)
@@ -54,8 +54,6 @@ demand_range = collect(0.1:0.1:10)
 top_dir = "/space/ae13414/Data/beta-skeleton"
 cd(top_dir)
 dirs_with_graphs = readdir()
-
-
 
 #Data frame that contains output data (note that we should have the files..)
 #This is pretty much a db schema!! NOTE: only for SINGLE OD PAIRS
@@ -135,9 +133,7 @@ for dir in dirs_with_graphs
 
                 poa = cost_ue/cost_so
 
-                #rows have the following 'columns':     graphid | od_pair | beta | demand (q) | UE cost | SO cost | PoA
-               #println("id\tod\tβ\tq\tCue\tCso\tPoA")
-               #println("$id\t$od\t$β\t$k\t$cost_ue\t$cost_so\t$poa")
+               #rows have the following 'columns': graphid | od_pair | beta | demand (q) | UE cost | SO cost | PoA
                 row = data([id; od; β; k; cost_ue; cost_so; cost_ue/cost_so])
                 push!(data_frame, row)
             end
