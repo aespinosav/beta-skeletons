@@ -1,16 +1,4 @@
-#Functions for the generation of the perturbed-lattice
-
-#Lattice parameters (these are handles for future extensions to ohter lattice-types)
-#Tetragonal square lattice
-e1 = [1.0,0.0]
-e2 = [0.0,1.0]
-#Scales are later adjusted 
-a = b = 1.0
-
-n_root = 10
-n = n_root^2
-
-
+#File contains functions for generating a perturbed lattice with perturbation parameter α
 """
 Returns the indices i,j of the position of the k-th point in the lattice
 """
@@ -18,7 +6,7 @@ function indices_of_lattice_point(k, n_root)
         i = floor(k/n_root) # which row (from top to bottom) 0-start I think
         j = mod(k, n_root)
 
-        indices = [i,j]
+        indices = [Int(i),Int(j)]
 end
 
 
@@ -29,10 +17,10 @@ and the unit (a) square boundary.
 """
 function square_lattice(n_root, a=1, clearance=0.05)
     n = n_root^2
-    gap = (a - 2clearance) / (n-1)
+    gap = (a - 2*clearance) / (n_root - 1)
     
     points = Array{Float64,1}[]
-    for k in 1:n
+    for k in 0:n-1
         i, j = indices_of_lattice_point(k, n_root)
         p_k = [clearance + (j*gap), clearance + (i*gap)]
         push!(points, p_k)
@@ -83,10 +71,10 @@ function drop_point(corners)
     xlength = xmax - xmin
     ylength = ymax - ymin
 
-    x = rand()*xlength + xmin
-    y = rand()*ylength + ymin
+    x = rand()*xlength
+    y = rand()*ylength
     
-    p = [x,y]
+    p = [x,y] + corners[1]
 end
 
 
