@@ -124,7 +124,7 @@ function β_skeleton(points::Array{Array{Float64,1},1}, β)
                     u = g.nodes[i].pos
                     v = g.nodes[j].pos
 
-                    if in_C(p,u,v,beta)
+                    if in_C(p,u,v,β)
                         isempty = false
                         break
                     end
