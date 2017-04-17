@@ -17,3 +17,16 @@ function skeleton_road_network(n, beta, b_mult=1.4)
     end
     rn = RoadNetwork(g, a_params, b_params)
 end
+
+"""
+Genereates a β-skeleton from an α-point set. The function is called like so,
+
+skeleton_graph_αβ(n, α, β)
+
+This function only returns the graph, NOT the road network.
+"""
+function skeleton_graph_αβ(n::Int, α::Float64, β::Float64)
+    n_root = Int(sqrt(n)) #This will give an error if given a number of points 
+    points = α_set(n_root, α)
+    g = β_skeleton(points, β)
+end
