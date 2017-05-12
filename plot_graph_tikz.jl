@@ -49,7 +49,7 @@ function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true,
         \\end{tikzpicture}"""
 
     if standalone_doc
-        head = """\\documentclass{article}
+        head = """\\documentclass{minimal}
 \\usepackage{tikz}
 \\begin{document}"""
         tail = "\n\\end{document}"
