@@ -23,7 +23,7 @@ od_samples = 1000
 
 #Calculate run-specific iters
 
-n_nets = α_range * β_range
+n_nets = α_range * α_instances * β_range
 staps_to_solve_per_net = q_range * od_samples
 staps_to_solve_total = n_nets * staps_to_solve_per_net
 
@@ -49,9 +49,7 @@ Total STAPs to solve (nets * demand_values * od_samples per net) = $staps_to_sol
 write(f, param_string)
 close(f)
 
-
 #Script run
-
 
 data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
                        od=Array{Tuple{Int64,Int64},1}(),
@@ -62,14 +60,14 @@ data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
                        poa=Array{Float64,1}())
 
 for a in α_range
-    for n in 1:α_instances
-        α_set = 
-        α_set_id = ""
+    for na in 1:α_instances
+        set = α_set(10, a)
         for b in β_range
-            #g = skeleton_graph_αβ(n_points, a, b)
-            g_id = ""
-
+            g = β_skeleton(set, b)
             rn = road_network_from_geom_graph(g)
+            
+            g_id = "s$(na)_a$(a)_b$(b)"
+
         end
     end
 end
