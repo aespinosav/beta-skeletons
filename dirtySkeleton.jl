@@ -39,7 +39,7 @@ function in_C_2(p, u, v, beta)
     c1 = v - r*unit_vect    #Centre of circle that has u in its interior
     c2 = u + r*unit_vect    #Centre of circle that has v in its interior
 
-    onright = sign(dot(perp, p - u)) >= 0
+    onright = sign(dot(perp, p - u)) > 0
     incircles = norm(p - c1) < r && norm(p - c2) < r
 end
 
@@ -99,7 +99,6 @@ Makes a beta skeleton from a set of points given as  an array of arrays (coordin
 function β_skeleton(points::Array{Array{Float64,1},1}, β)
     
     n = length(points)
-    
     g = Graph()
 
     for i in 1:n
