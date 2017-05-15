@@ -14,8 +14,12 @@ cd(writing_dir)
 β_range = 1.0:0.1:2.0
 q_range = 0.1:0.1:1.0
 
+α_instances = 100 #Instances of alfa sets to be made for each β
 n_points = 100
 od_samples = 1000
+
+#We generate an ensemble of alfa-sets and then calculate the beta skeleton for different values of beta for each set of points in the ensemble. This way we can also keep track of how the topology of the netwrk changes with beta. (for the same set of points!)
+
 
 #Calculate run-specific iters
 
@@ -50,20 +54,22 @@ close(f)
 
 
 data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
-                            od=Array{Tuple{Int64,Int64},1}(),
-                            β=Array{Float64,1}(),
-                            q=Array{Float64,1}(),
-                            uecost=Array{Float64,1}(),
-                            socost=Array{Float64,1}(),
-                            poa=Array{Float64,1}())
+                       od=Array{Tuple{Int64,Int64},1}(),
+                       β=Array{Float64,1}(),
+                       q=Array{Float64,1}(),
+                       uecost=Array{Float64,1}(),
+                       socost=Array{Float64,1}(),
+                       poa=Array{Float64,1}())
 
 for a in α_range
-    for b in β_range
+    for n in 1:α_instances
+        α_set = 
+        α_set_id = ""
+        for b in β_range
+            #g = skeleton_graph_αβ(n_points, a, b)
+            g_id = ""
 
-        g = skeleton_graph_αβ(n_points, a, b)
-        g_id = ""
-
-        rn = road_network_from_geom_graph(g)
-
+            rn = road_network_from_geom_graph(g)
+        end
     end
 end
