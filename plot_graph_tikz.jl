@@ -26,7 +26,7 @@ function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true,
 
     str="""\\begin{tikzpicture}
 \\begin{scope}
-\\tikzstyle{every node}=[draw=none,fill=none]"""
+\\tikzstyle{every node}=[draw=none,fill=none]\n"""
 
     for i in 1:n
         x, y = g.nodes[i].pos
@@ -34,16 +34,75 @@ function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true,
     end
 
     str *= "\\end{scope}\n"
-    str *= "\\begin{scope}\n\n"
+    
 
-    for j in 1:edge_index_step:m
-        edge = g.edges[j]
-        s = edge.source.index
-        t = edge.target.index
-        str *= "\\draw ($s) -- ($t);\n"
+    if m != 0   #If there are no edges, adding an empty scope is likely to cause problems
+        str *= "\\begin{scope}\n\n"
+
+        for j in 1:edge_index_step:m
+            edge = g.edges[j]
+            s = edge.source.index
+            t = edge.target.index
+            str *= "\\draw ($s) -- ($t);\n"
+        end
+
+        str *= "\\end{scope}\n"
+    end
+
+    str*=
+        """
+        \\end{tikzpicture}"""
+
+    if standalone_doc
+        head = """\\documentclass{minimal}
+\\usepackage{tikz}
+\\begin{document}"""
+        tail = "\n\\end{document}"
+
+        str = head *str* tail
+    end
+
+    open(filename, "w") do f
+        write(f, str)
+    end
+end
+
+function save_graph_tikz_circ(g::Graph, filename::AbstractString; bidirectional=true, standalone_doc=true)
+    
+    n = num_nodes(g)
+    m = num_edges(g)
+    
+    if bidirectional
+        edge_index_step = 2
+    else
+        edge_index_step =1
+    end
+
+    str="""\\begin{tikzpicture}
+\\begin{scope}
+\\tikzstyle{every node}=[draw=none,fill=black,scale=0.3]\n"""
+
+    for i in 1:n
+        x, y = g.nodes[i].pos
+        str *= "\\node[circle] ($i) at ($(x*5.0),$(y*5.0)) {};\n"
     end
 
     str *= "\\end{scope}\n"
+    
+
+    if m != 0   #If there are no edges, adding an empty scope is likely to cause problems
+        str *= "\\begin{scope}\n\n"
+
+        for j in 1:edge_index_step:m
+            edge = g.edges[j]
+            s = edge.source.index
+            t = edge.target.index
+            str *= "\\draw ($s) -- ($t);\n"
+        end
+
+        str *= "\\end{scope}\n"
+    end
+
     str*=
         """
         \\end{tikzpicture}"""
