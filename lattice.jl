@@ -1,4 +1,6 @@
 #File contains functions for generating a perturbed lattice with perturbation parameter α
+using TrafficNetworks
+
 """
 Returns the indices i,j of the position of the k-th point in the lattice
 """
@@ -96,4 +98,18 @@ function α_set(n_root, α; clear=0.05)
         end
         return points    
     end
+end
+
+"""
+Makes a graph object with the nodes and their positions, but no edges.
+They can be connected later (this is useful to make different networks from the same point set)
+"""
+function edgeless_graph(points)
+    n = length(points)
+    g = Graph()
+
+    for i in 1:n
+         add_node!(g, Node(i, points[i]))
+    end
+    g
 end
