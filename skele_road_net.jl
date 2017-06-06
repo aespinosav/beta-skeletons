@@ -62,7 +62,7 @@ function road_network_from_geom_graph(g::Graph, b_min_prop=0.1, b_max_prop=1.4)
 
         b_min = b_min_prop * a
         b_max = b_max_prop * a
-        interval_lenght = b_max - b_min
+        interval_length = b_max - b_min
         b = b_min + rand()*interval_length
 
         push!(a_params, a)
