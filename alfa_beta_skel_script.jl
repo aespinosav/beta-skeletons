@@ -1,4 +1,15 @@
 using TrafficNetworks, SkeletonCities, DataFrames
+"""
+This script generates and saves traffic simulation data for ensembles of the αβ-skeletons.
+It constructs and saves the networks and saves the corresponding network and parameter files
+in the given directories (se below).
+
+The first section of this script has the configuration variables for both the file system
+destinations and the paramaters and their ranges for the simulations. So anyone wanting
+to use this script is encouraged to read throught the preamble (I know its a bit long...)
+carefully and check that the settings for the simulation runs are as desired as they can 
+take a very long time to run if too many simulations are chosen...
+"""
 
 #File system settings
 
@@ -20,14 +31,13 @@ od_samples = 1000
 
 #We generate an ensemble of alfa-sets and then calculate the beta skeleton for different values of beta for each set of points in the ensemble. This way we can also keep track of how the topology of the netwrk changes with beta. (for the same set of points!)
 
-
 #Calculate run-specific iters
 
 n_nets = α_range * α_instances * β_range
 staps_to_solve_per_net = q_range * od_samples
 staps_to_solve_total = n_nets * staps_to_solve_per_net
 
-#Write PARAMS file
+#Write simulation run info file
 
 f = open("run_info.md", "w")
 info_string =
@@ -104,8 +114,34 @@ for a in α_range
         for b in β_range
             g = β_skeleton(set, b)
             g_id = "skel_s$(na)_a$(a)_b$(b)"
-
+            save_graph(g, g_id*".json")
             rn = road_network_from_geom_graph(g)
+            writedlm(g_id*".params", hcat(rn.a, rn.b), header="Flow params: a, b")
+            num_od_pairs = 0.1*num_nodes^2 #sample 10 percent of od pairs
+            od_list = od_pairs(g, num_od_pairs)
+            
+            for (i, od) in enumerate(od_list)
+                od_mat = od_matrix_from_pair(rn.g, od)
+                sols_ue = ta_solve(rn, OD, demand_range)
+                sols_so = ta_solve(rn, OD, demand_range, regime="SO")
+
+                data_ue = flows_data_frame(sols_ue, demand_range)
+                data_so = flows_data_frame(sols_so, demand_range)
+            end
+
+            for k in 1:length(demand_range)
+
+                f_ue = data_ue[k, 2:end]
+                f_so = data_so[k, 2:end]
+
+                cost_ue = tot_cost(rn, data_ue[k,:])
+                cost_so = tot_cost(rn, data_so[k,:])
+
+                poa = cost_ue/cost_so
+
+                row = data([id; od; β; k; cost_ue; cost_so; cost_ue/cost_so])
+                push!(data_frame, row)
+            end
         end
     end
 end
