@@ -78,13 +78,12 @@ function save_graph_tikz_circ(g::Graph, filename::AbstractString; bidirectional=
         edge_index_step =1
     end
 
-    str="""\\begin{tikzpicture}
-\\begin{scope}
-\\tikzstyle{every node}=[draw=none,fill=black,scale=0.3]\n"""
+    str="""\\begin{tikzpicture}[every node/ .style={draw,shape=circle,fill=black,minimum size=3mm,inner sep=0pt,outer sep=0pt}]
+\\begin{scope}\n"""
 
     for i in 1:n
         x, y = g.nodes[i].pos
-        str *= "\\node[circle] ($i) at ($(x*5.0),$(y*5.0)) {};\n"
+        str *= "\\node ($i) at ($(x*5.0),$(y*5.0)) {};\n"
     end
 
     str *= "\\end{scope}\n"

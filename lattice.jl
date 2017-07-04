@@ -17,8 +17,9 @@ Make rectangular lattice of (n_root)^2 points in an (a x a) square.
 The clearance is the padding between the "outer" points of the lattice
 and the unit (a) square boundary.
 """
-function square_lattice(n_root, a=1; clearance=0.05)
+function square_lattice(n_root, a=1)#; clearance=0.05)
     n = n_root^2
+    clearance = (a/n)*0.5
     gap = (a - 2*clearance) / (n_root - 1)
     
     points = Array{Float64,1}[]
@@ -83,9 +84,9 @@ For α=1 a set of uniformly distribued random points.
 clear is the argument passed to square_lattice as clearance from the edge of the
 unit square.
 """
-function α_set(n_root, α; clear=0.05)
+function α_set(n_root, α)#; clear=0.05)
     n = n_root^2
-    lattice_points = square_lattice(n_root, clearance=clear)
+    lattice_points = square_lattice(n_root)#, clearance=clear)
     
     if α == 0.0
         return lattice_points

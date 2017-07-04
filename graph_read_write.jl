@@ -71,10 +71,17 @@ end
 """
 Loads a road network from data files. Requires two files: A json file and a param file
 """
-function load_road_network(filename_start)
-
+function load_road_network(filename)
+    g_id = split(filename, ".json")[1]
+    g = load_graph(filename)
+    pars = readdlm(g_id*".params")
+    a = pars[:,1]
+    b = pars[:,2]
+    rn = RoadNetwork(g, a, b)
 end
 
+
+# This function is no longer being used as graphviz is a bit too unstable to changing scales and things
 function save_graph_dot(g, filename, name="G", scale=1)
 
     str = "digraph $(name) {\nconcentrate=true;\n"

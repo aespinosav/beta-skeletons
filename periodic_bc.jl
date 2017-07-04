@@ -56,3 +56,16 @@ function periodic_nets_w_edgelengths(point_set, β)
     end
     g2, edge_lengths
 end
+
+"""
+Returns an od matrix (sparse) that is maximal distant points
+"""
+function torus_od(rn::RoadNetwork)
+    g = rn.g
+    N = num_nodes(g)
+    norms = [norm(g.nodes[i].pos) for i in 1:N]
+    o = indmin(norms)
+    dists_from_center = [norm(g.nodes[i].pos - [0.5,0.5]) for i in 1:N]
+    d = indmin(dists_from_center)
+    od_matrix_from_pair(g, (o,d))
+end
