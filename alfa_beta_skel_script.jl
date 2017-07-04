@@ -21,20 +21,20 @@ cd(writing_dir)
 
 #Simulation parameters
 
-α_range = 0.0:0.1:1.0
+α_range = 0.0:0.01:0.1
 β_range = 1.0:0.1:2.0
-q_range = 0.1:0.1:1.0
+q_range = 0.1:0.1:10
 
-α_instances = 100 #Instances of alfa sets to be made for each β
+α_instances = 1 #Instances of alfa sets to be made for each β
 n_points = 100
-od_samples = 1000
+od_samples = 10
 
 #We generate an ensemble of alfa-sets and then calculate the beta skeleton for different values of beta for each set of points in the ensemble. This way we can also keep track of how the topology of the netwrk changes with beta. (for the same set of points!)
 
 #Calculate run-specific iters
 
-n_nets = α_range * α_instances * β_range
-staps_to_solve_per_net = q_range * od_samples
+n_nets = length(α_range) * α_instances * length(β_range)
+staps_to_solve_per_net = length(q_range) * od_samples
 staps_to_solve_total = n_nets * staps_to_solve_per_net
 
 #Write simulation run info file
@@ -64,7 +64,7 @@ Simulation
 
 For the above choice of parameters this script does the following:
 
-For each value of α an ensemble of $α_insatnces perturbed lattices is generated. (randomness is involved)
+For each value of α an ensemble of $α_instances perturbed lattices is generated. (randomness is involved)
 From _each_ of these point sets a β-skeleton is formed for _every_ value of β.
 And for each of these graphs flow function parameters are generated (semi-randomly).
 
@@ -99,15 +99,25 @@ close(f)
 
 #Script run
 
-data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
+function tot_cost(rn, flows)
+    #q_range = flows[:q]
+    flows = flows[2:end]
+    f = [flows[i][] for i in 1:length(flows)]
+    cost = dot(rn.a, f) + dot(f, diagm(rn.b)*f)
+end
+
+q_range = collect(q_range)
+for a in α_range
+    println("Starting on α = $a")
+    data_frame = DataFrame(graph_id=Array{UTF8String,1}(),
                        od=Array{Tuple{Int64,Int64},1}(),
+                       α=Array{Float64,1}(),
                        β=Array{Float64,1}(),
                        q=Array{Float64,1}(),
                        uecost=Array{Float64,1}(),
                        socost=Array{Float64,1}(),
                        poa=Array{Float64,1}())
-
-for a in α_range
+    gc() #Collect garbage to clear the memory from previous allocation of data_frame
     for na in 1:α_instances
         set = α_set(10, a)
         writedlm("set_s$(na)_a$(a).dat" , set)
@@ -116,32 +126,35 @@ for a in α_range
             g_id = "skel_s$(na)_a$(a)_b$(b)"
             save_graph(g, g_id*".json")
             rn = road_network_from_geom_graph(g)
-            writedlm(g_id*".params", hcat(rn.a, rn.b), header="Flow params: a, b")
-            num_od_pairs = 0.1*num_nodes^2 #sample 10 percent of od pairs
+            writedlm(g_id*".params", hcat(rn.a, rn.b))
+            num_od_pairs = od_samples #0.1*num_nodes(g)^2 #sample 10 percent of od pairs
             od_list = od_pairs(g, num_od_pairs)
             
             for (i, od) in enumerate(od_list)
                 od_mat = od_matrix_from_pair(rn.g, od)
-                sols_ue = ta_solve(rn, OD, demand_range)
-                sols_so = ta_solve(rn, OD, demand_range, regime="SO")
+                sols_ue = ta_solve(rn, od_mat, q_range)
+                sols_so = ta_solve(rn, od_mat, q_range, regime="SO")
 
-                data_ue = flows_data_frame(sols_ue, demand_range)
-                data_so = flows_data_frame(sols_so, demand_range)
-            end
+                data_ue = flows_data_frame(sols_ue, q_range)
+                data_so = flows_data_frame(sols_so, q_range)
 
-            for k in 1:length(demand_range)
+                for k in 1:length(q_range)
 
-                f_ue = data_ue[k, 2:end]
-                f_so = data_so[k, 2:end]
+                    f_ue = data_ue[k, 2:end]
+                    f_so = data_so[k, 2:end]
 
-                cost_ue = tot_cost(rn, data_ue[k,:])
-                cost_so = tot_cost(rn, data_so[k,:])
+                    cost_ue = tot_cost(rn, convert(Array, data_ue[k,:])) #define this function for data frames! #define this function for data frames!
+                    cost_so = tot_cost(rn, convert(Array, data_so[k,:]))
 
-                poa = cost_ue/cost_so
+                    poa = cost_ue/cost_so
 
-                row = data([id; od; β; k; cost_ue; cost_so; cost_ue/cost_so])
-                push!(data_frame, row)
+                    #println(g_id, od, a, b, k, cost_ue, cost_so, poa)
+
+                    row = data([g_id; od; a; b; k; cost_ue; cost_so; poa])
+                    push!(data_frame, row)
+                end
             end
         end
+        writetable("sim_data_alfa_$(a)_na_$(na).tsv", data_frame)
     end
 end
