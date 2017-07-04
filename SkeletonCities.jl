@@ -10,13 +10,15 @@ using TrafficNetworks
 export beta_skeleton, β_skeleton, save_graph, load_graph,
        load_tntp_to_dataframe, skeleton_road_network,
        load_beta_sim_data, α_set, skeleton_graph_αβ,
-       road_network_from_geom_graph, save_graph_tikz
+       road_network_from_geom_graph, save_graph_tikz,
+       periodic_nets_w_edgelengths
 
 include("dirtySkeleton.jl")
 include("skele_road_net.jl")
 include("graph_read_write.jl")
 include("sim_data_io.jl")
 include("lattice.jl")
+include("periodic_bc.jl")
 include("plot_graph_tikz.jl")
 #include("tntp_interaction.jl") #Contains functions for loading .tntp files into data frames
 end
