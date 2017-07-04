@@ -32,8 +32,7 @@ a and b.
 flows must be a row of a data frame obtained with flows_data_frame (or same structure!)
 that only contains the flows on the edges.
 """
-function tot_cost(rn, flows)
-   
+function tot_cost(rn, flows)   
    #q_range = flows[:q]
     flows = flows[2:end]
     f = [flows[i][] for i in 1:length(flows)]
