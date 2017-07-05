@@ -3,7 +3,7 @@ using TrafficNetworks, SkeletonCities
 """
 Generates a beta skeleton with periodic boundary conditions
 """
-function periodic_nets_w_edgelengths(point_set, β)
+function periodic_net_w_lengths(point_set, β; map_image=true)
     
     N = length(point_set)
 
@@ -24,8 +24,7 @@ function periodic_nets_w_edgelengths(point_set, β)
         end
     end
     #mega_set
-
-    g = β_skeleton(mega_set, β)
+    g = β_skeleton(mega_set, β) #This is not the best way of doing this since it draws edges that are ignored (within the other tiles))
     
     edge_indices = []
     for i in 1:N
@@ -43,19 +42,45 @@ function periodic_nets_w_edgelengths(point_set, β)
 
     edge_lengths = [norm(g.edges[i].target.pos - g.edges[i].source.pos) for i in edge_indices]
 
-    mapped_sources = map(x -> mod(x, N)+1, sources)
-    mapped_targets = map(x -> mod(x, N)+1, targets)
+    if map_image
+        mapped_sources = map(x -> mod(x, N)+1, sources)
+        mapped_targets = map(x -> mod(x, N)+1, targets)
+        edge_tuples = zip(mapped_sources, mapped_targets)
 
-    edge_tuples = zip(mapped_sources, mapped_targets)
-    g2 = Graph()
-    for i in 1:N
-        add_node!(g2, Node(i, point_set[i]))
-    end
-    for j in edge_tuples
-        connect!(g2, j[1], j[2])
+        g2 = Graph()
+        for i in 1:N
+            add_node!(g2, Node(i, point_set[i]))
+        end
+        for j in edge_tuples
+            connect!(g2, j[1], j[2])
+        end
+    else 
+        available_indices =unique(sort(sources))
+        println("Avail: ", available_indices)
+        extra_indices = available_indices[N+1:end]
+        
+        edge_tuples = Array{Tuple{Int,Int},1}()
+        for i in 1:length(sources)
+            s = find(x -> x==sources[i], available_indices)[1]
+            t = find(x -> x==targets[i], available_indices)[1]
+            println("($s, $t)")
+            push!(edge_tuples, (s,t))  
+
+        end
+         
+        num_of_image_nodes = length(available_indices) - N
+
+        g2 = Graph()
+        for i in 1:(N + num_of_image_nodes)
+            add_node!(g2, Node(i, mega_set[available_indices[i]]))
+        end
+        for j in edge_tuples
+            connect!(g2, j[1], j[2])
+        end
     end
     g2, edge_lengths
 end
+
 
 """
 Returns an od matrix (sparse) that is maximal distant points
