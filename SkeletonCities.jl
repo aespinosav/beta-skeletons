@@ -15,7 +15,7 @@ export beta_skeleton, β_skeleton, save_graph, load_graph,
        #From tools.jl
        connect_net!, sample_ensemble, save_net_json,
        load_net_json, g_lens_for_sim, populate_flows_vis,
-       resource_allocation
+       resource_allocation, load_road_network
 
 include("dirtySkeleton.jl")
 include("skele_road_net.jl")
