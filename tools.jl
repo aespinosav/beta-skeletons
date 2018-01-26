@@ -40,6 +40,20 @@ function load_net_json(filename)
     g, lens, tups, imgs
 end
 
+function load_road_network(filename)
+    g_name = split(filename, '.')[1]
+    
+    g, lens, tups, imgs = load_net_json(filename)
+   
+    params_file = g_name*".params"
+    if params_file in readdir()        
+        params = readdlm(params_file)
+        a, b = params[:,1], params[:,2]
+    end
+    
+    RoadNetwork(g, a, b)
+end
+
 function g_lens_for_sim(g_vis, lens_vis, edge_tuple_vis, node_images, root_n)
     N = root_n^2
 
