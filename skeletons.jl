@@ -1,6 +1,7 @@
 #Script to generate beta skeletons (eventually to be turned into a module)...
 # implementation of the algorithm (right beta region) of Hurtado et al. 2003 comp. geometry 25.
 
+# THIS ALGORITHM IS NOT WORKING ATM !!!!!!!!!!!!! NOT IN USE
 
 
 #Define functions
