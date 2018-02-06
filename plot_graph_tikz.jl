@@ -147,9 +147,6 @@ end
 
 
 
-
-
-
 function save_graph_tikz_circ(g::Graph, filename::AbstractString; bidirectional=true, standalone_doc=true)
     
     n = num_nodes(g)
