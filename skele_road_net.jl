@@ -40,6 +40,17 @@ function skeleton_graph_αβ(n::Int, α::Float64, β::Float64)
 end
 
 
+
+
+
+
+
+
+
+
+########################################################################
+# I dont think this function is needed
+####################################################################
 """
 Function that assigns cost parameters a and b (linear cost functions f(x) = a + bx)
 to a graph that has coordinates for the nodes. This is based on euclidean distance.
