@@ -1,3 +1,6 @@
+# FILE NOT IN USE. NEW FUNCTIONS HAVE BEEN WRITTEN. AVOID USING THIS
+
+
 using JSON
 
 #Functions to write and load graphs in json format
