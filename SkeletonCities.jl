@@ -7,7 +7,7 @@ module SkeletonCities
 
 using TrafficNetworks
 
-export beta_skeleton, β_skeleton, save_graph, load_graph,
+export β_skeleton, random_beta_skeleton, save_graph, load_graph,
        load_tntp_to_dataframe, skeleton_road_network,
        load_beta_sim_data, α_set, skeleton_graph_αβ,
        road_network_from_geom_graph, save_graph_tikz,
@@ -19,8 +19,8 @@ export beta_skeleton, β_skeleton, save_graph, load_graph,
 
 include("dirtySkeleton.jl")
 include("skele_road_net.jl")
-include("graph_read_write.jl")
-include("sim_data_io.jl")
+#include("graph_read_write.jl")
+#include("sim_data_io.jl")
 include("lattice.jl")
 include("periodic_bc.jl")
 include("plot_graph_tikz.jl")
