@@ -46,7 +46,7 @@ end
 """
 Returns a beta-skeleton graph with n points for parameter beta
 """
-function beta_skeleton(n, beta)
+function random_beta_skeleton(n, beta)
 
     if beta <= 1
         in_C = in_C_1
@@ -96,13 +96,13 @@ end
 """
 Makes a beta skeleton from a set of points given as  an array of arrays (coordinates).
 """
-function β_skeleton(points::Array{Array{Float64,1},1}, β)
+function β_skeleton(points::Array{Float64,2}, β)
     
-    n = length(points)
+    n = size(points)[1]
     g = Graph()
 
     for i in 1:n
-        add_node!(g, Node(i, points[i]))
+        add_node!(g, Node(i, points[i,:][:]))
     end
     
     if β <= 1
@@ -138,4 +138,13 @@ function β_skeleton(points::Array{Array{Float64,1},1}, β)
         end
     end
     g
+end
+
+
+function β_skeleton(points::Array{Array{Float64,1},1}, β)
+    new_points = Array{Float64}(length(points),2)
+    for i in 1:length(points)
+        new_points[i,:] = points[i]
+    end
+    β_skeleton(new_points, β)
 end
