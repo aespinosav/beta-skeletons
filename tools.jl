@@ -40,21 +40,39 @@ function load_net_json(filename)
     g, lens, tups, imgs
 end
 
-function load_road_network(filename)
-    g_name = split(filename, '.')[1]
-    
+
+"""
+Loads road network from .json and .params file into a RoadNetwork object.
+"""
+function load_road_network(filename; periodic=false)
+    g_name = split(filename, '.')[1] 
     g, lens, tups, imgs = load_net_json(filename)
-   
+
     params_file = g_name*".params"
     if params_file in readdir()        
         params = readdlm(params_file)
         a, b = params[:,1], params[:,2]
+    else
+        warn("Cost parameter file not found. Loading RoadNetwork with empty cost parameter arrays...")
+        a, b = [], []
     end
+
+    if periodic
+        g_sim, lens_sim, edge_copies_for_vis = g_lens_for_sim(g, lens, tups, imgs, sqrt(length(unique(imgs))))
     
+        g = g_sim
+        a = lens_sim
+        b = resource_allocation(g_sim, a)
+    end
     RoadNetwork(g, a, b)
 end
 
-function g_lens_for_sim(g_vis, lens_vis, edge_tuple_vis, node_images, root_n)
+
+"""
+Crucial function for dealing with periodic boundaries...
+Name of function should change as it actually does more than just calculate the 'true' lengths for the edges. But care must be taken that all functions that call this one are updated too when that change is done...
+"""
+function g_lens_for_sim(g_vis, lens_vis, edge_tuples_vis, node_images, root_n)
     N = root_n^2
 
     g_sim = Graph()
@@ -64,7 +82,7 @@ function g_lens_for_sim(g_vis, lens_vis, edge_tuple_vis, node_images, root_n)
 
     #map tuples
     mapped_tuples = Array{Tuple{Int,Int},1}()
-    for ed_tup in edge_tuple_vis
+    for ed_tup in edge_tuples_vis
         i, j = ed_tup
         s = node_images[i]
         t = node_images[j]
@@ -89,6 +107,21 @@ function g_lens_for_sim(g_vis, lens_vis, edge_tuple_vis, node_images, root_n)
 
     g_sim, lens_sim, edge_copies_for_vis
 end
+
+#"""
+#Associate edges according to their pre-image nodes.
+#For dealing with periodic boundary conditions!
+#"""
+#function associate_edges(edge_array, node_images)
+#    real_nodes = unique(node_images)
+#    number_of_nodes = length(real_nodes)
+#    
+#    for i in 1:length(edge_array)
+#        edge_array[i] = (node_images[edge_array[i][1]], node_images[edge_array[i][2]])
+#    end
+#    new_edge_array = unique(edge_array)
+#end
+
 
 function populate_flows_vis(edge_copies_for_vis, flows)
     indices = []
