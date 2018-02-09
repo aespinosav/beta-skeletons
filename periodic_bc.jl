@@ -8,22 +8,22 @@ function periodic_net_w_lengths(point_set, β)
     
     N = length(point_set)
 
-    translation_vects = [[-1 -1];
-                         [-1 0];
-                         [-1 1];
-                         [0 1];
-                         [1 1];
-                         [1 0];
-                         [1 -1];
-                         [0 -1]]
+    translation_vects = [-1 -1;
+                         -1 0;
+                         -1 1;
+                          0 1;
+                          1 1;
+                          1 0;
+                          1 -1;
+                          0 -1]
     
     mega_set = copy(point_set)
+    
     for i in 1:8
-        this_tiled_set = [point_set[j] + translation_vects[i,:]' for j in 1:N]
-        for k in 1:N
-            push!(mega_set, vec(this_tiled_set[k]))
-        end
+        this_tile = broadcast(+, point_set, translation_vects[i,:])
+        mega_set = vcat(mega_set, this_tile)
     end
+     
     g = β_skeleton(mega_set, β) #This is not the best way of doing this...
     
     #Makes an array of the indices of the edges that matter
@@ -66,7 +66,7 @@ function periodic_net_w_lengths(point_set, β)
     #The information of which node they are an image of is kept in the array node_images
     g2 = Graph()
     for i in 1:(N + num_of_image_nodes)
-        add_node!(g2, Node(i, mega_set[available_node_indices[i]]))
+        add_node!(g2, Node(i, mega_set[available_node_indices[i],:][:]))
     end
     for j in edge_tuples
         connect!(g2, j[1], j[2])
