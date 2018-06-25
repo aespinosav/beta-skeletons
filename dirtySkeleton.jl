@@ -85,7 +85,7 @@ function β_skeleton(points::Array{Float64,2}, β)
 
             if isempty
                 connect_net!(g, i, j)
-                connect_net!(g, j, i)
+                connect_net!(g, j, i) #make two 1-way links
             end
         end
     end
