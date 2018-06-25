@@ -47,6 +47,9 @@ end
 
 """
 Makes a beta skeleton from a set of points given as a 2D array of coordinates.
+
+Default is for set of points to be given as a 2D array.
+Array of arrays also has a defined method.
 """
 function β_skeleton(points::Array{Float64,2}, β)
     
@@ -89,6 +92,7 @@ function β_skeleton(points::Array{Float64,2}, β)
     g
 end
 
+# If given an array of arrays
 function β_skeleton(points::Array{Array{Float64,1},1}, β)
     new_points = Array{Float64}(length(points),2)
     for i in 1:length(points)
@@ -96,60 +100,3 @@ function β_skeleton(points::Array{Array{Float64,1},1}, β)
     end
     β_skeleton(new_points, β)
 end
-
-
-
-
-#
-# This function seems a bit irrelevant now as it is super easy to just make a random array of points...
-#
-#
-#"""
-#Returns a beta-skeleton graph with n points for parameter beta
-#"""
-#function random_beta_skeleton(n, beta)
-#
-#    if beta <= 1
-#        in_C = in_C_1
-#    else
-#        in_C = in_C_2
-#    end
-#
-#    xs = rand(n)
-#    ys = rand(n)
-#
-#    g = Graph()
-#
-#    for i in 1:n
-#        pos = [xs[i], ys[i]]
-#        add_node!(g, Node(i, pos))
-#    end
-#
-#    for i in 1:n
-#        for j in i+1:n
-#
-#            isempty = true
-#
-#            for k in 1:n
-#                if i != k && j !=k
-#
-#                    p = g.nodes[k].pos
-#                    u = g.nodes[i].pos
-#                    v = g.nodes[j].pos
-#
-#                    if in_C(p,u,v,beta)
-#                        isempty = false
-#                        break
-#                    end
-#                end
-#            end
-#
-#            if isempty
-#                connect!(g, i, j)
-#                connect!(g, j, i)
-#            end
-#
-#       end
-#    end
-#    g
-#end
