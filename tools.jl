@@ -1,4 +1,4 @@
-using TrafficNetworks, SkeletonCities, JSON
+    using TrafficNetworks, SkeletonCities, JSON
 
 function connect_net!(g::Graph, i::Int, j::Int)
     m = num_edges(g)
@@ -42,38 +42,11 @@ end
 
 
 """
-Loads road network from .json and .params file into a RoadNetwork object.
-"""
-function load_road_network(filename; periodic=false)
-    g_name = split(filename, '.')[1] 
-    g, lens, tups, imgs = load_net_json(filename)
-
-    params_file = g_name*".params"
-    if params_file in readdir()        
-        params = readdlm(params_file)
-        a, b = params[:,1], params[:,2]
-    else
-        warn("Cost parameter file not found. Loading RoadNetwork with empty cost parameter arrays...")
-        a, b = [], []
-    end
-
-    if periodic
-        g_sim, lens_sim, edge_copies_for_vis = g_lens_for_sim(g, lens, tups, imgs, sqrt(length(unique(imgs))))
-    
-        g = g_sim
-        a = lens_sim
-        b = resource_allocation(g_sim, a)
-    end
-    RoadNetwork(g, a, b)
-end
-
-
-"""
 Crucial function for dealing with periodic boundaries...
 Name of function should change as it actually does more than just calculate the 'true' lengths for the edges. But care must be taken that all functions that call this one are updated too when that change is done...
 """
 function g_lens_for_sim(g_vis, lens_vis, edge_tuples_vis, node_images, root_n)
-    N = root_n^2
+    N = Int(root_n^2)
 
     g_sim = Graph()
     for i in 1:N
@@ -104,9 +77,34 @@ function g_lens_for_sim(g_vis, lens_vis, edge_tuples_vis, node_images, root_n)
         edge_copies_for_vis[i] =  find(x -> x==t, mapped_tuples)
         connect_net!(g_sim, t[1], t[2])
     end
-
     g_sim, lens_sim, edge_copies_for_vis
 end
+
+"""
+Loads road network from .json and .params file into a RoadNetwork object.
+"""
+function load_road_network(filename; periodic_conditions=false, param_file_exists=false)
+    g_name = split(filename, '.')[1] 
+    
+    #this if statement here is bad function design...
+    if param_file_exists
+        params_file = g_name*".params"        
+        params = readdlm(params_file)
+        a, b = params[:,1], params[:,2]
+    else
+        warn("Cost parameter file not found. Loading RoadNetwork with empty cost parameter arrays...")
+        a, b = [], []
+    end
+    
+    if periodic_conditions
+        g, a, edge_copies = g_lens_for_sim(g, lens, tups, imgs, sqrt(length(unique(imgs))))
+    else
+        g, a, tups, imgs = load_net_json(filename)
+    end
+    b = resource_allocation(g_sim, a)
+    RoadNetwork(g, a, b)
+end
+
 
 #"""
 #Associate edges according to their pre-image nodes.
@@ -165,42 +163,10 @@ function resource_allocation(g, lens)
 end
 
 
-
-
 ##########################################
 ##########################################
 ##########################################
 #  Unused functions
-function save_net(filename, g, edge_lengths, edge_tuples)
-    N = num_nodes(g)
-    M = num_edges(g)
-
-    header = """{\n "num_nodes": $N,\n "num_edges": $M,\n"""
-
-    open(filename, "w") do f
-        write(f, header)
-
-        #Write the nodes with their coordinates
-        write(f, """ "nodes": [\n""")
-        for i in 1:N-1
-            nodestring = """  {\n   "index": $(g.nodes[i].index),\n   "pos": $(g.nodes[i].pos)\n  },\n"""
-            write(f, nodestring)
-        end
-        write(f, """  {\n   "index": $(g.nodes[N].index),\n   "pos": $(g.nodes[N].pos)\n  }\n ],\n""")
-        
-        #Write the edges and their lengths
-        write(f, """ "edges": [\n""")
-        for i in 1:M-1
-            edgestring = """  {\n   "index": $(g.edges[i].index),\n   "source": $(g.edges[i].source.index),\n   "target": $(g.edges[i].target.index),\n   "length": $(edge_lengths[i])\n  },\n"""
-            write(f, edgestring)
-        end
-        write(f, """  {\n   "index": $(g.edges[M].index),\n   "source": $(g.edges[M].source.index),\n   "target": $(g.edges[M].target.index),\n   "length": $(edge_lengths[M])\n  }\n  ],\n""")
-
-        write(f, """ "edge_tuples": $(edge_tuples)""")
-       #Close json object
-        write(f, "}")
-    end
-end
 
 function load_net(filename)
     graph_dict = JSON.parsefile(filename)
