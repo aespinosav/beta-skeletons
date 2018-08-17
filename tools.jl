@@ -46,10 +46,10 @@ Crucial function for dealing with periodic boundaries...
 Name of function should change as it actually does more than just calculate the 'true' lengths for the edges. But care must be taken that all functions that call this one are updated too when that change is done...
 """
 function g_lens_for_sim(g_vis, lens_vis, edge_tuples_vis, node_images, root_n)
-    N = Int(root_n^2)
+    n = Int(root_n^2)
 
     g_sim = Graph()
-    for i in 1:N
+    for i in 1:n
         add_node!(g_sim, Node(i,g_vis.nodes[i].pos))
     end
 
