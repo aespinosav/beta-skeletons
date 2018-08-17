@@ -15,7 +15,7 @@ export
     #From lattice.jl
     α_set,
     #From periodic_bc.jl
-    periodic_net_w_lengths, torus_od,
+    periodic_net_w_lengths, torus_od, torus_od₂,
     #From plot_graph_tikz.jl
     save_graph_tikz, plot_flows_net,
     #From tools.jl
