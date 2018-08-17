@@ -4,7 +4,7 @@ using Colors
 Saves a .tex file that contains a tikz image. Currently it generates an article document in LaTeX.
 Usage is as follows:
 
-save_graph_tikz(g, filename)
+    `save_graph_tikz(g, filename)`
 
 Where g is a Graph and filename is a the name of the target file as a string.
 
@@ -15,7 +15,7 @@ If network is truley a directed graph then it MUST be specified.
 The optional variable 'standalone_doc' can be set to true if  the diagram is to be rendered by itself
 as a pdf document.
 """
-function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true, standalone_doc=true)
+function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true, standalone_doc=true, log_scale=false)
     scale = 10.0
     n = num_nodes(g)
     m = num_edges(g)
@@ -76,7 +76,7 @@ function save_graph_tikz(g::Graph, filename::AbstractString; bidirectional=true,
 end
 
 
-function plot_flows_net(filename, g, flows; tol = 1e-4)
+function plot_flows_net(filename, g, flows; tol = 1e-5,log_scale=false)
 
     scale = 10.0
     n = num_nodes(g)
@@ -85,7 +85,9 @@ function plot_flows_net(filename, g, flows; tol = 1e-4)
     min_flow = minimum(flows)
     max_flow = maximum(flows)
 
-    cmap = colormap("Oranges") #Defines 100 colors
+    cmap = (log_scale) ? colormap("Oranges") : colormap("Oranges", logscale=true)   #Defines 100 colors
+    
+    
 
     edge_index_step =1
 
@@ -146,7 +148,9 @@ function plot_flows_net(filename, g, flows; tol = 1e-4)
 end
 
 
-
+###########################################################################################################
+###########################################################################################################
+###########################################################################################################
 function save_graph_tikz_circ(g::Graph, filename::AbstractString; bidirectional=true, standalone_doc=true)
     
     n = num_nodes(g)
