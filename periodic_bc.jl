@@ -147,7 +147,6 @@ function periodic_net_w_lengths(point_set::Array{Array{Float64,1},1}, β)
     for j in edge_tuples
         connect_net!(g2, j[1], j[2])
     end
-
     g2, edge_lengths, edge_tuples, node_images
 end
 

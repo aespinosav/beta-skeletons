@@ -1,4 +1,4 @@
-    using TrafficNetworks, SkeletonCities, JSON
+using TrafficNetworks, SkeletonCities, JSON
 
 function connect_net!(g::Graph, i::Int, j::Int)
     m = num_edges(g)
@@ -16,6 +16,11 @@ end
 
 function save_net_json(filename, g, edge_lengths, edge_tuples, node_images)
    jay =  json((g, edge_lengths, edge_tuples, node_images))
+   write(filename, jay)
+end
+
+function save_net_json_nonperiodic(filename, g, edge_lengths)
+   jay =  json((g, edge_lengths))
    write(filename, jay)
 end
 
@@ -55,25 +60,46 @@ function g_lens_for_sim(g_vis, lens_vis, edge_tuples_vis, node_images, root_n)
 
     #map tuples
     mapped_tuples = Array{Tuple{Int,Int},1}()
-    for ed_tup in edge_tuples_vis
-        i, j = ed_tup
+    mapped_lengths = zeros(Float64, length(edge_tuples_vis))
+    for (k,edge) in enumerate(edge_tuples_vis)
+        i, j = edge
         s = node_images[i]
         t = node_images[j]
         push!(mapped_tuples, (s,t))
+        mapped_lengths[k] = norm(g_vis.nodes[i].pos - g_vis.nodes[j].pos)
     end
-
-    unique_edge_tuples = Array{Tuple{Int,Int},1}()
-    lens_sim = Array{Float64,1}()
-    for (i,t) in enumerate(mapped_tuples)
-        if !(t in unique_edge_tuples)
-            push!(unique_edge_tuples, t)
-            push!(lens_sim, lens_vis[i])
-        end
+    println(mapped_tuples)
+    
+    
+    
+    u_edges = map(x -> (node_images[x[1]],node_images[x[2]]) , edge_tuples_vis)
+    unique_indices = indexin(unique(u_edges), u_edges)
+    unique_edges = u_edges[unique_indices]
+    unique_lengths = lens_vis[unique_indices]
+    
+    lens_sim = zeros(Float64, length(unique_edges))
+    edge_copies_for_vis = Dict()
+    for (i,e) in enumerate(mapped_tuples)
+        if !(e in unique_edges)
+            lens_sim[i] = lens_vis[i]
+            edge_copies_for_vis[i] = find(x -> x==e, mapped_tuples)
+            connect_net(g_sim, e...)
+        end 
     end
+    lens_sim = unique_lengths
+    
+    #unique_edges = Array{Tuple{Int,Int},1}()
+    #lens_sim = Array{Float64,1}()
+    #for (i,e) in enumerate(mapped_tuples)
+    #    if !(t in unique_edges)
+    #        push!(unique_edges, t)
+    #        push!(lens_sim, lens_vis[i])
+    #    end
+    #end
 
     edge_copies_for_vis = Dict()
-    for i in 1:length(unique_edge_tuples)
-        t = unique_edge_tuples[i]
+    for i in 1:length(unique_edges)
+        t = unique_edges[i]
         edge_copies_for_vis[i] =  find(x -> x==t, mapped_tuples)
         connect_net!(g_sim, t[1], t[2])
     end

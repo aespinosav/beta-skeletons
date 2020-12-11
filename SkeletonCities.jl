@@ -11,7 +11,7 @@ export
     #From dirtySkeleton.jl
     β_skeleton,
     #From skele_road_net.jl
-    skeleton_graph_αβ, skeleton_road_network,
+    skeleton_graph_αβ,
     #From lattice.jl
     α_set,
     #From periodic_bc.jl
@@ -19,7 +19,7 @@ export
     #From plot_graph_tikz.jl
     save_graph_tikz, plot_flows_net,
     #From tools.jl
-    sample_ensemble, save_net_json,
+    sample_ensemble, save_net_json, save_net_json_nonperiodic,
     load_net_json, g_lens_for_sim, populate_flows_vis,
     resource_allocation, load_road_network
 

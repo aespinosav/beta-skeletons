@@ -36,7 +36,9 @@ and the unit (a) square boundary.
 """
 function square_lattice(n_root, a=1)
     n = n_root^2
-    clearance = (a/n)*0.5 
+    #clearance = (a/n)*0.5
+    # I think it has to be n_root :( ....
+    clearance = (a/n_root)*0.5
     gap = (a - 2*clearance) / (n_root - 1)
    
     points  = Array{Float64}(n,2)
@@ -47,6 +49,7 @@ function square_lattice(n_root, a=1)
     end
     points
 end
+# Why did I start the index count at zero?
 
 
 #function corners(p, α)
